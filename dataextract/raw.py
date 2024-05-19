@@ -1,9 +1,3 @@
-import os
-
-import numpy as np
-
-from crystanalyser.analyser import *
-from dataextract.dataExtraction import *
 from graph.raw import *
 sourceDataDir = "/home/sewik/source/repos/Spectra/data"
 rootDataDir = "/home/sewik/source/repos/CrystAnalysisKit/data"
@@ -31,6 +25,9 @@ def separate_crysts(fileList, path):
 
 
 def raw_cryst_general():
+	probeTypes = []
+	bgCorrMethodDirPath = ""
+	bgCorrMethod = ""
 	for calcType in calcTypes:
 		calcTypeDirPath = os.path.join(rootDataDir, calcType)
 		bgCorrMethods = os.listdir(calcTypeDirPath)
@@ -43,7 +40,7 @@ def raw_cryst_general():
 			for lambdaValue in lambdaValues:
 				lambdaValueDirPath = os.path.join(probeTypeDirPath, lambdaValue)
 				crystList = os.listdir(lambdaValueDirPath)
-				separatedCrysts = separate_crysts(crystList)
+				separatedCrysts = separate_crysts(crystList, lambdaValueDirPath)
 				for crystNumber, fileList in separatedCrysts.items():
 					for dataFile in fileList:
 						pathToFile = os.path.join(lambdaValueDirPath, dataFile)
@@ -75,7 +72,7 @@ def raw_cryst_lambda_fixed():
 			for lambdaValue in lambdaValues:
 				crystsPath = os.path.join(probeTypeDirPath, lambdaValue + '/')
 				crystList = os.listdir(crystsPath)
-				crystsDict = separate_crysts(crystList)
+				crystsDict = separate_crysts(crystList, crystsPath)
 				for crystNum, fileList in crystsDict.items():
 					crystsContentDict = get_data_files_content_dict(crystsPath, fileList)
 					pathToSave = os.path.join(rootImageDir, 'lambdaFixed', probeType, lambdaValue, correctionMethod + '/')
@@ -98,6 +95,6 @@ def raw_cryst_second_fixed():
 				crystList = os.listdir(crystsPath)
 				crystsDict = separate_crysts(crystList, crystsPath)
 				crystsAccumulatedDictFiles[lambdaValue] = crystsDict
-			#crystsAccumulatedDictData = extract_raw_for_second_fixed(crystsAccumulatedDictFiles)
+			# crystsAccumulatedDictData = extract_raw_for_second_fixed(crystsAccumulatedDictFiles)
 			pathToSave = os.path.join(rootImageDir, 'secondFixed', probeType)
 			plot_raw_second_fixed(crystsAccumulatedDictFiles, probeNames, correctionMethod, probeType[0].upper(), pathToSave)
