@@ -47,6 +47,8 @@ def plot_deconv_cryst_general(
 		multiplier = 0
 		while True:
 			start = multiplier * 10
+			if start > len(names):
+				break
 			end = (multiplier + 1) * 10
 			if end > len(names):
 				end = len(names) - 1
@@ -59,8 +61,6 @@ def plot_deconv_cryst_general(
 				continue
 			X = getIds(fullList=namesList, names=names[start:end], prefix = prefix)
 			Y = np.array(values[start:end], dtype='float')
-			if start > len(names):
-				break
 			axis.set_ylabel('Wartość')
 			axis.set_xlabel('Nazwa próbki')
 			try:
@@ -73,10 +73,125 @@ def plot_deconv_cryst_general(
 			plt.legend(num)
 			if not os.path.exists(outPath):
 				os.makedirs(outPath)
-			# plt.show()
 			plt.savefig(
 				fname = outFileName,
 				dpi = 200
 			)
 			plt.close()
 			print(f'Saved: {outFileName}')
+
+
+def plot_deconv_cryst_lambda_fixed(
+		dataDict: dict,
+		corr: str,
+		pType: str,
+		num: str,
+		outPath: str
+):
+	prefix = pType[0].upper()
+	fullNamesList = getNames(pType = pType)
+	for index, name in enumerate(fullNamesList):
+		fileName = outPath + f'{prefix}{index+1}.png'
+		if not os.path.exists(outPath):
+			os.makedirs(outPath)
+		if os.path.exists(fileName):
+			print(f"Skipping: {fileName}")
+			continue
+		fig, ax = plt.subplots()
+		X = np.array(list(dataDict.keys()), dtype = 'float')
+		Y = np.array([], dtype = 'float')
+		for secondValue, data in dataDict.items():
+			foundRecord = False
+			for probeNumber, probeName in enumerate(data[:, 0]):
+				if probeName != name:
+					continue
+				if data[probeNumber, 1] == '':
+					Y = np.append(Y, float(-5))
+					foundRecord = True
+					break
+				Y = np.append(Y, float(data[probeNumber, 1]))
+				foundRecord = True
+				break
+			if not foundRecord:
+				Y = np.append(Y, float(-5))
+		plt.scatter(X, Y, color = colors[num])
+		ax.set_ylabel('Wartość')
+		if corr == 'asLS':
+			xLabel = 'Współczynnik terminacji'
+		else:
+			xLabel = 'Waga asymetrii'
+		ax.set_xlabel(xLabel)
+		maxY = np.max(Y)
+		prunedYMask = Y >= 0
+		prunedY = Y[prunedYMask]
+		if prunedY.size != 0:
+			minY = np.min(prunedY)
+		else:
+			minY = np.min(Y)
+		factor = 0.05
+		ax.set_ylim((minY - factor * minY, maxY + factor*maxY))
+		legendRecord = f'{prefix}{index + 1}'
+		plt.legend([legendRecord])
+		# plt.show()
+		plt.savefig(
+			fname = fileName,
+			dpi=200
+		)
+		plt.close()
+		print(f"Saved: {fileName}")
+
+def plot_deconv_cryst_second_fixed(
+		dataDict: dict,
+		pType: str,
+		num: str,
+		outPath: str
+):
+	prefix = pType[0].upper()
+	fullNamesList = getNames(pType)
+	for index, name in enumerate(fullNamesList):
+		fileName = outPath + f'{prefix}{index + 1}.png'
+		if not os.path.exists(outPath):
+			os.makedirs(outPath)
+		if os.path.exists(fileName):
+			print(f'Skipping: {fileName}')
+			continue
+
+		fig, ax = plt.subplots()
+		X = np.array(list(dataDict.keys()), dtype = 'float')
+		Y = np.array([], dtype = 'float')
+		for lambdaValue, data in dataDict.items():
+			foundRecord = False
+			for probeNumber, probeName in enumerate(data[:, 0]):
+				if probeName != name:
+					continue
+				if data[probeNumber, 1] == '':
+					Y = np.append(Y, float(-5))
+					foundRecord = True
+					break
+				Y = np.append(Y, float(data[probeNumber, 1]))
+				foundRecord = True
+				break
+			if not foundRecord:
+				Y = np.append(Y, float(-5))
+		plt.scatter(X, Y, color = colors[num])
+		ax.set_ylabel('Wartość')
+		ax.set_xlabel('Parametr wygładzający')
+		maxY = np.max(Y)
+		prunedYMask = Y >= 0
+		prunedY = Y[prunedYMask]
+		if prunedY.size != 0:
+			minY = np.min(prunedY)
+		else:
+			minY = np.min(Y)
+		factor = 0.05
+		ax.set_ylim((minY - factor* minY, maxY + factor * maxY))
+		plt.xscale('log')
+		legendRecord = f'{prefix}{index + 1}'
+		plt.legend([legendRecord])
+		#plt.show()
+		plt.savefig(
+			fname = fileName,
+			dpi=200
+		)
+		plt.close()
+		print(f'Saved: {fileName}')

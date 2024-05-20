@@ -7,5 +7,8 @@ if __name__ == "__main__":
 	# raw_cryst_general()
 	# raw_cryst_lambda_fixed()
 	# raw_cryst_second_fixed()
-	deconv_crysts_general(path = rootDataDir)
-
+	#deconv_crysts_general(path = rootDataDir)
+	#deconv_crysts_lambda_fixed(path = rootDataDir)
+	#deconv_crysts_second_fixed(path = rootDataDir)
+	#plot_correction_lambda_fixed(path)
+	#plot_correction_second_fixed(path)

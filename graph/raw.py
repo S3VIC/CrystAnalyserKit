@@ -63,11 +63,11 @@ def plot_raw_lambda_fixed(contentDict, prefix, probeNames, bgCorrection: str, cr
 		legend = f'{prefix}{index}'
 		plt.legend([legend])
 		if bgCorrection == 'asLS':
-			xlabel = 'Współczynnik terminacji'
+			xLabel = 'Współczynnik terminacji'
 		else:
-			xlabel = 'Waga asymetrii'
+			xLabel = 'Waga asymetrii'
 		axis.set_ylabel('Wartość')
-		axis.set_xlabel(xlabel)
+		axis.set_xlabel(xLabel)
 		if not os.path.exists(pathToSave):
 			os.makedirs(pathToSave)
 		fileName = pathToSave + f'{prefix}{index}-{crystNumber}-{bgCorrection}.png'
